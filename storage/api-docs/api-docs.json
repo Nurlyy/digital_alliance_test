@@ -1,0 +1,337 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Task Manager API",
+        "description": "API для управления задачами с приоритизацией",
+        "contact": {
+            "email": "your@email.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/tasks": {
+            "get": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Получить список задач",
+                "operationId": "be68905d866e856db6c738172b8d929a",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Фильтр по статусу (TODO, IN_PROGRESS, COMPLETED)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список задач",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Task"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Создать новую задачу",
+                "operationId": "ebbaabc58e3db61374a57c53544959b2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TaskRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Задача успешно создана",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                }
+            }
+        },
+        "/api/tasks/{id}": {
+            "get": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Получить задачу по ID",
+                "operationId": "32c40e2d1129b80c1dcabd538df63a33",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID задачи",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Информация о задаче",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Задача не найдена"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Обновить задачу",
+                "operationId": "c36c959b634c99e1e02ad2f3f2c36a2c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID задачи",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TaskRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Задача успешно обновлена",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Задача не найдена"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Удалить задачу",
+                "operationId": "d81cc7975ea62176b4ef8f74ed95168d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID задачи",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Задача удалена"
+                    },
+                    "404": {
+                        "description": "Задача не найдена"
+                    }
+                }
+            }
+        },
+        "/api/tasks/priority": {
+            "get": {
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Получить приоритизированный список задач",
+                "description": "Сортирует задачи по важности и сроку дедлайна. Также указывает, просрочена ли задача.",
+                "operationId": "89543bb68520bf6f466863a8c57b471d",
+                "responses": {
+                    "200": {
+                        "description": "Приоритизированный список задач",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "allOf": [
+                                                    {
+                                                        "$ref": "#/components/schemas/Task"
+                                                    },
+                                                    {
+                                                        "properties": {
+                                                            "priority_score": {
+                                                                "type": "number"
+                                                            },
+                                                            "is_overdue": {
+                                                                "type": "boolean"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "TaskRequest": {
+                "required": [
+                    "title",
+                    "status",
+                    "importance",
+                    "deadline"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Подготовить презентацию"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Подготовить презентацию для заказчика"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "TODO",
+                            "IN_PROGRESS",
+                            "COMPLETED"
+                        ]
+                    },
+                    "importance": {
+                        "type": "integer",
+                        "example": 4
+                    },
+                    "deadline": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-12-01T12:00:00"
+                    }
+                },
+                "type": "object"
+            },
+            "Task": {
+                "required": [
+                    "title",
+                    "status",
+                    "importance",
+                    "deadline"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Срочная задача"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Описание задачи"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "TODO",
+                            "IN_PROGRESS",
+                            "COMPLETED"
+                        ]
+                    },
+                    "importance": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "deadline": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-12-01T12:00:00"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "is_overdue": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "priority_score": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0.85
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Tasks",
+            "description": "Tasks"
+        }
+    ]
+}
